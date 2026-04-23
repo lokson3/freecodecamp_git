@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pentester Roadmap</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #0f1318;
+    --border: #2a3348;
+    --green: #00ff88;
+    --cyan: #00d4ff;
+    --red: #ff3c5a;
+    --yellow: #ffd700;
+    --muted: #6b7a8d;
+    --text: #e8f0fa;
+    --text-dim: #98aabf;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,255,136,0.012) 2px,
+      rgba(0,255,136,0.012) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  header {
+    padding: 60px 40px 40px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--green), transparent);
+  }
+
+  .header-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 20px;
+    color: var(--green);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -2px;
+    color: #fff;
+  }
+
+  h1 span {
+    color: var(--green);
+    display: block;
+  }
+
+  .subtitle {
+    margin-top: 20px;
+    color: #98aabf;
+    font-size: 30px;
+    font-weight: 300;
+    max-width: 600px;
+    line-height: 1.7;
+  }
+
+  .status-bar {
+    margin-top: 30px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 22px;
+    color: var(--text-dim);
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  .dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .dot-yellow { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); animation-delay: 0.5s; }
+  .dot-cyan { background: var(--cyan); box-shadow: 0 0 6px var(--cyan); animation-delay: 1s; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 20px;
+    padding: 16px 40px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 24px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--text-dim);
+  }
+
+  .badge {
+    font-size: 18px;
+    font-family: 'Share Tech Mono', monospace;
+    padding: 2px 7px;
+    border-radius: 2px;
+    letter-spacing: 1px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .badge-free { background: rgba(0,255,136,0.12); color: var(--green); border: 1px solid rgba(0,255,136,0.25); }
+  .badge-paid { background: rgba(255,215,0,0.1); color: var(--yellow); border: 1px solid rgba(255,215,0,0.25); }
+  .badge-freemium { background: rgba(0,212,255,0.1); color: var(--cyan); border: 1px solid rgba(0,212,255,0.25); }
+  .badge-done { background: rgba(255,60,90,0.1); color: var(--red); border: 1px solid rgba(255,60,90,0.25); }
+  .badge-current { background: rgba(255,215,0,0.15); color: var(--yellow); border: 1px solid rgba(255,215,0,0.4); }
+
+  /* Main layout */
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px;
+  }
+
+  /* Phase blocks */
+  .phase {
+    margin-bottom: 60px;
+    position: relative;
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .phase-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0;
+    height: 1px;
+    width: 80px;
+    background: var(--green);
+  }
+
+  .phase-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 22px;
+    color: var(--green);
+    letter-spacing: 2px;
+    opacity: 0.7;
+  }
+
+  .phase-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+
+  .phase-note {
+    margin-left: auto;
+    font-size: 24px;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    position: relative;
+    transition: border-color 0.2s, transform 0.2s;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+  }
+
+  .card.c-free::before { background: var(--green); }
+  .card.c-paid::before { background: var(--yellow); }
+  .card.c-freemium::before { background: var(--cyan); }
+
+  .card:hover {
+    border-color: #2a3040;
+    transform: translateY(-2px);
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .card-name {
+    font-weight: 700;
+    font-size: 20px;
+    color: #fff;
+    line-height: 1.3;
+  }
+
+  .card-desc {
+    font-size: 20px;
+    color: var(--text);
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .tag {
+    font-size: 22px;
+    font-family: 'Share Tech Mono', monospace;
+    padding: 3px 8px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.07);
+    color: #b0c4d8;
+    border: 1px solid #2a3348;
+    letter-spacing: 0.5px;
+  }
+
+  .card-priority {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 24px;
+    color: #98aabf;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .card-priority span {
+    color: var(--green);
+  }
+
+  /* Cert section */
+  .cert-track {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cert-track::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--green), var(--cyan));
+  }
+
+  .cert-flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-top: 20px;
+  }
+
+  .cert-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    min-width: 140px;
+    position: relative;
+    background: rgba(255,255,255,0.02);
+    text-align: center;
+  }
+
+  .cert-node.done {
+    border-color: rgba(255,60,90,0.4);
+    background: rgba(255,60,90,0.05);
+  }
+
+  .cert-node.current {
+    border-color: rgba(255,215,0,0.5);
+    background: rgba(255,215,0,0.06);
+    box-shadow: 0 0 20px rgba(255,215,0,0.08);
+  }
+
+  .cert-node.future {
+    opacity: 0.6;
+  }
+
+  .cert-name {
+    font-weight: 700;
+    font-size: 20px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .cert-sub {
+    font-size: 24px;
+    color: #98aabf;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .cert-arrow {
+    font-size: 24px;
+    color: var(--muted);
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+
+  /* Warning box */
+  .warning {
+    background: rgba(255,60,90,0.06);
+    border: 1px solid rgba(255,60,90,0.2);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 40px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .warning-icon {
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--red);
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .warning-text {
+    font-size: 20px;
+    color: #e8f0fa;
+    line-height: 1.7;
+  }
+
+  .warning-text strong { color: #ff6b80; }
+
+  /* Info box */
+  .info {
+    background: rgba(0,212,255,0.04);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 40px;
+  }
+
+  .info-text {
+    font-size: 20px;
+    color: #c8dae8;
+    line-height: 1.7;
+  }
+
+  .info-text strong { color: #40e0ff; }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 30px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+  }
+
+  .footer-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 20px;
+    color: var(--text-dim);
+  }
+
+  @media (max-width: 700px) {
+    header, .container, footer { padding: 24px 20px; }
+    .legend { padding: 12px 20px; }
+    .cert-flow { flex-direction: column; align-items: flex-start; }
+    .cert-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-tag">// pentester_roadmap.sh — initiating sequence</div>
+  <h1>PENETRATION<span>TESTING ROADMAP</span></h1>
+  <p class="subtitle">A brutally honest, structured path from Google Cert → Security+ → OSCP and beyond. No fluff, no shortcuts. This is the real grind.</p>
+  <div class="status-bar">
+    <div class="status-item"><div class="status-dot dot-green"></div> Google Cert — COMPLETE</div>
+    <div class="status-item"><div class="status-dot dot-yellow"></div> CompTIA Security+ — IN PROGRESS</div>
+    <div class="status-item"><div class="status-dot dot-cyan"></div> Pentesting Path — LOADING</div>
+  </div>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><span class="badge badge-free">FREE</span> No cost</div>
+  <div class="legend-item"><span class="badge badge-paid">PAID</span> Requires payment</div>
+  <div class="legend-item"><span class="badge badge-freemium">FREEMIUM</span> Free tier + paid content</div>
+  <div class="legend-item"><span class="badge badge-done">DONE</span> You've completed this</div>
+  <div class="legend-item"><span class="badge badge-current">CURRENT</span> Where you are now</div>
+</div>
+
+<div class="container">
+
+  <div class="warning">
+    <div class="warning-icon">[!]</div>
+    <div class="warning-text">
+      <strong>Brutal truth:</strong> The Google Cert is a foundation, not a credential that opens pentesting doors. Security+ will get you past HR filters, but real pentesting roles demand hands-on lab time and practical certifications like OSCP. <strong>Never stop building a lab. Never stop breaking things.</strong>
+    </div>
+  </div>
+
+  <!-- CERT TRACK -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num">CERT TRACK</div>
+      <div class="phase-title">Certification Progression</div>
+    </div>
+
+    <div class="cert-track">
+      <div style="font-size:20px;color:#c8dae8;line-height:1.7;">Follow this order. Don't skip ahead. Each cert unlocks knowledge and credibility for the next.</div>
+      <div class="cert-flow">
+        <div class="cert-node done">
+          <span class="badge badge-done" style="margin-bottom:8px">DONE</span>
+          <div class="cert-name">Google Cybersecurity Cert</div>
+          <div class="cert-sub">foundation</div>
+        </div>
+        <div class="cert-arrow">→</div>
+        <div class="cert-node current">
+          <span class="badge badge-current" style="margin-bottom:8px">CURRENT</span>
+          <div class="cert-name">CompTIA Security+</div>
+          <div class="cert-sub">SY0-701 | ~$400</div>
+        </div>
+        <div class="cert-arrow">→</div>
+        <div class="cert-node future">
+          <div class="cert-name">eJPT</div>
+          <div class="cert-sub">INE / eLearnSecurity | ~$200</div>
+        </div>
+        <div class="cert-arrow">→</div>
+        <div class="cert-node future">
+          <div class="cert-name">CompTIA PenTest+</div>
+          <div class="cert-sub">optional | ~$400</div>
+        </div>
+        <div class="cert-arrow">→</div>
+        <div class="cert-node future" style="border-color:rgba(0,255,136,0.3);opacity:1;">
+          <div class="cert-name" style="color:var(--green)">OSCP</div>
+          <div class="cert-sub">OffSec | ~$1,499</div>
+        </div>
+        <div class="cert-arrow">→</div>
+        <div class="cert-node future">
+          <div class="cert-name">OSEP / OSED / BSCP</div>
+          <div class="cert-sub">advanced specialization</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 1 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num">PHASE 01</div>
+      <div class="phase-title">Security+ Prep — Finish The Job</div>
+      <div class="phase-note">Est. 4–8 weeks</div>
+    </div>
+
+    <div class="grid">
+      <div class="card c-free">
+        <div class="card-top">
+          <div class="card-name">Professor Messer</div>
+          <span class="badge badge-free">FREE</span>
+        </div>
+        <div class="card-desc">The best free Security+ resource on the internet. Full video course covering every SY0-701 objective. No excuses not to use this.</div>
+        <div class="card-tags">
+          <span class="tag">video</span><span class="tag">SY0-701</span><span class="tag">structured</span>
+        </div>
+        <div class="card-priority">→ <span>Start here</span> if you haven't already</div>
+      </div>
+
+      <div class="card c-free">
+        <div class="card-top">
+          <div class="card-name">ExamCompass</div>
+          <span class="badge badge-free">FREE</span>
+        </div>
+        <div class="card-desc">Free practice quizzes mapped to exam objectives. Grind these daily. Identify weak domains and attack them.</div>
+        <div class="card-tags">
+          <span class="tag">practice tests</span><span class="tag">quizzes</span>
+        </div>
+      </div>
+
+      <div class="card c-paid">
+        <div class="card-top">
+          <div class="card-name">Jason Dion (Udemy)</div>
+          <span class="badge badge-paid">PAID</span>
+        </div>
+        <div class="card-desc">6 full practice exams, ~$15 on sale (always on sale). Closest simulation to the actual exam format. Non-negotiable for exam readiness.</div>
+        <div class="card-tags">
+          <span class="tag">practice exams</span><span class="tag">simulation</span>
+        </div>
+        <div class="card-priority">→ Buy when <span>Udemy runs a sale</span></div>
+      </div>
+
+      <div class="card c-paid">
+        <div class="card-top">
+          <div class="card-name">Mike Chapple (LinkedIn Learning)</div>
+          <span class="badge badge-paid">PAID</span>
+        </div>
+        <div class="card-desc">Strong supplementary course from a credible author. Good if Professor Messer's pacing doesn't work for you. LinkedIn Learning has a free trial.</div>
+        <div class="card-tags">
+          <span class="tag">video</span><span class="tag">comprehensive</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num">PHASE 02</div>
+      <div class="phase-title">Networking & Linux — The Non-Negotiables</div>
+      <div class="phase-note">Parallel to Phase 01</div>
+    </div>
+
+    <div class="info">
+      <div class="info-text"><strong>Why this matters:</strong> If you don't understand TCP/IP, subnetting, and how to move around Linux without a GUI, you will hit a hard wall in pentesting. These are not optional prerequisites — they are the floor everything else is built on.</div>
+    </div>
+
+    <div class="grid">
+      <div class="card c-free">
+        <div class="card-top">
+          <div class="card-name">OverTheWire: Bandit</div>
+          <span class="badge badge-free">FREE</span>
+        </div>
+        <div class="card-desc">Wargame designed to teach Linux CLI from zero. You will feel dumb at first. That's the point. Complete all 34 levels before moving on.</div>
+        <div class="card-tags">
+          <span class="tag">linux</span><span class="tag">cli</span><span class="tag">wargame</span>
+        </div>
+        <div class="card-priority">→ <span>Complete all levels</span></div>
+      </div>
+
+      <div class="card c-free">
+        <div class="card-top">
+          <div class="card-name">Cisco Networking Academy (NetAcad)</div>
+          <span class="badge badge-free">FREE</span>
+        </div>
+        <div class="card-desc">Free courses including "Networking Basics" and "Network Defense." Dry but thorough. Subnetting especially critical for pentesting recon.</div>
+        <div class="card-tags">
+          <span class="tag">networking</span><span class="tag">tcp/ip</span><span class="tag">subnetting</span>
+        </div>
+      </div>
+
+      <div class="card c-free">
+        <div class="card-top">
+          <div class="card-name">Linux Journey (linuxjourney.com)</div>
+          <span class="badge badge-free">FREE</span>
+        </div>
+        <div class="card-desc">Interactive Linux learning for free. Covers filesystem, permissions, processes, networking. Clean, no-nonsense format.</div>
+        <div class="card-tags">
+          <span class="tag">linux</span><span class="tag">interactive</span>
+        </div>
+      </div>
+
+      <div class="card c-freemium">
+        <div class="card-top">
+          <div class="card-name">TryHackMe — Pre-Security Path</div>
+          <span class="badge badge-freemium">FREEMIUM</span>
+        </div>
+        <div class="card-desc">Guided path covering Linux, networking, and web fundamentals with browser-based VMs. The free tier covers most core content. Best beginner-friendly lab environment.</div>
+        <div class="card-tags">
+          <span class="tag">labs</span><span class="tag">guided</span><span class="tag">browser VM</span>
+        </div>
+        <div class="card-priority">→ Free tier is <span>sufficient to start</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num">PHASE 03</div>
+      <div class="phase-title">Pentesting Fundamentals — Start Breaking Things</div>
+      <div class="phase-note">After Security+</div>
+    </div>
+
+    <div class="grid">
+      <div class="card c-freemium">
+        <div class="card-top">
+          <div class="card-name">TryHackMe — Jr Pentester Path</div>
+          <span class="badge badge-freemium">FREEMIUM</span>
+        </div>
+        <div class="card-desc">Structured path through web hacking, network exploitation, privesc, and more. ~$14/month for full access. Best bang-for-buck beginner pentesting platform. Do this before Hack The Box.</div>
+        <div class="card-tags">
+          <span class="tag">web</span><span class="tag">network</span><span class="tag">privesc</span><span class="tag">guided</span>
+        </div>
+        <div class="card-priority">→ <span>Core platform</span> for this phase</div>
+      </div>
+
+      <div class="card c-freemium">
+        <div class="card-top">
+          <div class="card-name">Hack The Box (HTB)</div>
+          <span class="badge badge-freemium">FREEMIUM</span>
+        </div>
+        <div class="card-desc">The industry standard CTF/lab platform. Free retired machines with community writeups. HTB Academy has structured learning paths. Expect to struggle. That is normal.</div>
+        <div class="card-tags">
+          <span class="tag">ctf</span><span class="tag">labs</span><span class="tag">industry standard</span>
+        </div>
+      </div>
+
+      <div class="card c-free">
+        <div class="card-top">
+          <div class="card-name">VulnHub</div>
+          <span class="badge badge-free">FREE</span>
+        </div>
+        <div class="card-desc">Downloadable vulnerable VMs. Run locally in VirtualBox or VMware. Hundreds of machines ranging from trivial to OSCP-level. No internet required.</div>
+        <div class="card-tags">
+          <span class="tag">offline</span><span class="tag">vm</span><span class="tag">oscp prep</span>
+        </div>
+      </div>
+
+      <div class="card c-free">
+        <div class="card-top">
+          <div class="card-name">PortSwigger Web Academy</div>
+          <span class="badge badge-free">FREE</span>
+        </div>
+        <div class="card-desc">Completely free web application security training from the makers of Burp Suite. Covers SQLi, XSS, SSRF, XXE, IDOR, deserialization and more. Best web security resource on the internet. Full stop.</div>
+        <div class="card-tags">
+          <span class="tag">web app</span><span class="tag">burp suite</span><span class="tag">labs</span>
+        </div>
+        <div class="card-priority">→ <span>Best free resource</span> for web pentesting</div>
+      </div>
+
+      <div class="card c-free">
+        <div class="card-top">
+          <div class="card-name">PentesterLab</div>
+          <span class="badge badge-freemium">FREEMIUM</span>
+        </div>
+        <div class="card-desc">Badge-based web security labs. Free tier has solid content. Pro version adds more advanced topics including code review and CVE-based exercises.</div>
+        <div class="card-tags">
+          <span class="tag">web</span><span class="tag">code review</span><span class="tag">badges</span>
+        </div>
+      </div>
+
+      <div class="card c-free">
+        <div class="card-top">
+          <div class="card-name">DVWA / OWASP WebGoat</div>
+          <span class="badge badge-free">FREE</span>
+        </div>
+        <div class="card-desc">Intentionally vulnerable web apps you run locally. Old school but still valid for drilling OWASP Top 10 techniques manually with Burp Suite open.</div>
+        <div class="card-tags">
+          <span class="tag">local lab</span><span class="tag">owasp top 10</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 4 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num">PHASE 04</div>
+      <div class="phase-title">OSCP Preparation — The Endgame</div>
+      <div class="phase-note">6–12 months of serious prep</div>
+    </div>
+
+    <div class="warning">
+      <div class="warning-icon">[!]</div>
+      <div class="warning-text">
+        <strong>OSCP reality check:</strong> The exam is 24 hours of hacking + 24 hours to write a report. You need to compromise 3 standalone machines + an Active Directory set (70+ points to pass). People fail multiple times. Budget $1,499 minimum. Do not attempt until you can consistently root HTB Medium machines unassisted.
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card c-paid">
+        <div class="card-top">
+          <div class="card-name">TCM Security (PNPT Track)</div>
+          <span class="badge badge-paid">PAID</span>
+        </div>
+        <div class="card-desc">Heath Adams' courses (Practical Ethical Hacking, Linux Priv Esc, Windows Priv Esc, Movement/Pivoting/Persistence) are the single best OSCP prep package outside of PEN-200. ~$30 per course on TCM's site. PNPT cert ($399) is a respected alternative to OSCP.</div>
+        <div class="card-tags">
+          <span class="tag">AD</span><span class="tag">privesc</span><span class="tag">pivoting</span><span class="tag">oscp prep</span>
+        </div>
+        <div class="card-priority">→ <span>Best value</span> OSCP prep content</div>
+      </div>
+
+      <div class="card c-paid">
+        <div class="card-top">
+          <div class="card-name">OffSec PEN-200 (PWK)</div>
+          <span class="badge badge-paid">PAID</span>
+        </div>
+        <div class="card-desc">The official OSCP course. $1,499 includes 90 days lab access + 1 exam attempt. Dense PDF + video + 70+ lab machines. The lab is where you actually learn. Read everything, take notes, practice report writing from day one.</div>
+        <div class="card-tags">
+          <span class="tag">official</span><span class="tag">lab</span><span class="tag">report writing</span>
+        </div>
+      </div>
+
+      <div class="card c-freemium">
+        <div class="card-top">
+          <div class="card-name">HTB Pro Labs (RastaLabs / Offshore)</div>
+          <span class="badge badge-paid">PAID</span>
+        </div>
+        <div class="card-desc">Simulated enterprise environments with full Active Directory. Essential for understanding real-world attack chains. RastaLabs and Offshore are OSCP-adjacent difficulty.</div>
+        <div class="card-tags">
+          <span class="tag">active directory</span><span class="tag">enterprise sim</span>
+        </div>
+      </div>
+
+      <div class="card c-free">
+        <div class="card-top">
+          <div class="card-name">0xdf / IppSec Writeups (YouTube)</div>
+          <span class="badge badge-free">FREE</span>
+        </div>
+        <div class="card-desc">IppSec's HTB machine walkthroughs are required watching. Don't watch passively — pause, try yourself first, then compare approach. 0xdf's blog writeups are equally valuable for reading methodology.</div>
+        <div class="card-tags">
+          <span class="tag">methodology</span><span class="tag">walkthrough</span><span class="tag">htb</span>
+        </div>
+      </div>
+
+      <div class="card c-free">
+        <div class="card-top">
+          <div class="card-name">HackTricks (book.hacktricks.xyz)</div>
+          <span class="badge badge-free">FREE</span>
+        </div>
+        <div class="card-desc">The pentesting bible. Comprehensive cheat sheets for every attack vector — AD, web, network, privesc, pivoting. Bookmark this. You will use it constantly during OSCP labs.</div>
+        <div class="card-tags">
+          <span class="tag">reference</span><span class="tag">cheatsheets</span><span class="tag">all topics</span>
+        </div>
+        <div class="card-priority">→ <span>Bookmark now</span></div>
+      </div>
+
+      <div class="card c-free">
+        <div class="card-top">
+          <div class="card-name">PayloadsAllTheThings (GitHub)</div>
+          <span class="badge badge-free">FREE</span>
+        </div>
+        <div class="card-desc">Open-source payload and technique repository. Covers web attacks, file inclusions, AD attacks, bypass techniques. Complementary to HackTricks.</div>
+        <div class="card-tags">
+          <span class="tag">payloads</span><span class="tag">bypasses</span><span class="tag">reference</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 5 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num">PHASE 05</div>
+      <div class="phase-title">Specialization — After OSCP</div>
+      <div class="phase-note">Pick your lane</div>
+    </div>
+
+    <div class="grid">
+      <div class="card c-paid">
+        <div class="card-top">
+          <div class="card-name">PortSwigger + BSCP</div>
+          <span class="badge badge-paid">PAID</span>
+        </div>
+        <div class="card-desc">Web app pentest specialization. Burp Suite Certified Practitioner ($99) is a recognized web-specific cert. Ideal if you want to focus on bug bounty or web app assessments.</div>
+        <div class="card-tags"><span class="tag">web app</span><span class="tag">bug bounty</span><span class="tag">specialization</span></div>
+      </div>
+
+      <div class="card c-paid">
+        <div class="card-top">
+          <div class="card-name">OffSec OSEP (PEN-300)</div>
+          <span class="badge badge-paid">PAID</span>
+        </div>
+        <div class="card-desc">Advanced evasion techniques, AV bypass, advanced AD attacks, tunneling. The natural next step after OSCP for red teamers. Brutal difficulty increase.</div>
+        <div class="card-tags"><span class="tag">red team</span><span class="tag">evasion</span><span class="tag">advanced AD</span></div>
+      </div>
+
+      <div class="card c-freemium">
+        <div class="card-top">
+          <div class="card-name">HackerOne / Bugcrowd</div>
+          <span class="badge badge-freemium">FREEMIUM</span>
+        </div>
+        <div class="card-desc">Bug bounty platforms. Free to register. Real-world targets, legal hacking, potential income. Start with public programs. Document everything — your reports are your portfolio.</div>
+        <div class="card-tags"><span class="tag">bug bounty</span><span class="tag">real targets</span><span class="tag">income</span></div>
+      </div>
+
+      <div class="card c-paid">
+        <div class="card-top">
+          <div class="card-name">Sektor7 / VX Underground</div>
+          <span class="badge badge-paid">PAID</span>
+        </div>
+        <div class="card-desc">Malware development and red team tradecraft. Sektor7 courses (~$67) cover shellcoding, process injection, AV evasion. Only relevant after solid OSCP-level fundamentals.</div>
+        <div class="card-tags"><span class="tag">maldev</span><span class="tag">evasion</span><span class="tag">advanced</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-text">// roadmap generated — stay consistent, skill compounds</div>
+  <div class="footer-text">OSCP is the target. Everything else is preparation.</div>
+</footer>
+
+</body>
+</html>
